@@ -1,0 +1,56 @@
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+
+# Sample data for movies and showtimes
+movies = {
+    "The Matrix": ["12:00 PM", "3:00 PM", "6:00 PM"],
+    "Inception": ["1:00 PM", "4:00 PM", "7:00 PM"],
+    "Interstellar": ["2:00 PM", "5:00 PM", "8:00 PM"]
+}
+
+# Start command handler
+def start(update: Update, context: CallbackContext) -> None:
+    update.message.reply_text("Welcome to the Movie Booking Bot! Type /movies to see available movies.")
+
+# Show movies command handler
+def show_movies(update: Update, context: CallbackContext) -> None:
+    keyboard = [[InlineKeyboardButton(movie, callback_data=movie)] for movie in movies]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text("Choose a movie:", reply_markup=reply_markup)
+
+# Showtimes callback handler
+def show_showtimes(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+    movie_name = query.data
+    showtimes = movies[movie_name]
+
+    keyboard = [[InlineKeyboardButton(time, callback_data=f"{movie_name}|{time}")] for time in showtimes]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(f"Choose a showtime for {movie_name}:", reply_markup=reply_markup)
+
+# Confirm booking callback handler
+def confirm_booking(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+    movie_name, showtime = query.data.split("|")
+    query.edit_message_text(f"Your ticket for {movie_name} at {showtime} has been booked! 🎟️")
+
+def main():
+    # Replace 'YOUR_BOT_TOKEN' with your actual bot token
+    updater = Updater("YOUR_BOT_TOKEN")
+
+    # Command handlers
+    updater.dispatcher.add_handler(CommandHandler("start", start))
+    updater.dispatcher.add_handler(CommandHandler("movies", show_movies))
+
+    # Callback query handlers
+    updater.dispatcher.add_handler(CallbackQueryHandler(show_showtimes, pattern="^(The Matrix|Inception|Interstellar)$"))
+    updater.dispatcher.add_handler(CallbackQueryHandler(confirm_booking, pattern="^.+\\|.+$"))
+
+    # Start the bot
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
