@@ -5,7 +5,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Callback
 movies = {
     "The Matrix": ["12:00 PM", "3:00 PM", "6:00 PM"],
     "Inception": ["1:00 PM", "4:00 PM", "7:00 PM"],
-    "Interstellar": ["2:00 PM", "5:00 PM", "8:00 PM"]
+    "Interstellar": ["2:00 PM", "5:00 PM", "8:00 PM", "9:00 PM"]
 }
 
 # Start command handler
